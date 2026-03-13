@@ -14,12 +14,22 @@
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 #define WIFI_MAXIMUM_RETRY 10
+#define WSS_MESSAGE        "hello from esp32c5 with ssl"
 
 static const char *TAG = "my_websocket";
 
 static EventGroupHandle_t s_wifi_event_group;
 static int s_wifi_retry_num;
 static bool s_message_sent;
+static bool s_use_ssl;
+
+extern const char AAA_Certificate_Services_pem_start[] asm("_binary_AAA_Certificate_Services_pem_start");
+extern const char AAA_Certificate_Services_pem_end[] asm("_binary_AAA_Certificate_Services_pem_end");
+
+static bool uri_uses_wss(const char *uri)
+{
+    return uri != NULL && strncmp(uri, "wss://", strlen("wss://")) == 0;
+}
 
 static void wifi_event_handler(void *arg,
                                esp_event_base_t event_base,
@@ -57,23 +67,24 @@ static void websocket_event_handler(void *handler_args,
 {
     esp_websocket_client_handle_t client = (esp_websocket_client_handle_t)handler_args;
     esp_websocket_event_data_t *data = (esp_websocket_event_data_t *)event_data;
+    const char *message = s_use_ssl ? WSS_MESSAGE : CONFIG_MY_WEBSOCKET_MESSAGE;
 
     switch (event_id) {
     case WEBSOCKET_EVENT_CONNECTED: {
         int len;
 
-        ESP_LOGI(TAG, "WebSocket connected: %s", CONFIG_MY_WEBSOCKET_URI);
+        ESP_LOGI(TAG, "WebSocket connected over %s: %s", s_use_ssl ? "WSS" : "WS", CONFIG_MY_WEBSOCKET_URI);
         if (s_message_sent) {
             return;
         }
 
         len = esp_websocket_client_send_text(client,
-                                             CONFIG_MY_WEBSOCKET_MESSAGE,
-                                             strlen(CONFIG_MY_WEBSOCKET_MESSAGE),
+                                             message,
+                                             strlen(message),
                                              pdMS_TO_TICKS(5000));
         if (len >= 0) {
             s_message_sent = true;
-            ESP_LOGI(TAG, "Sent message: %s", CONFIG_MY_WEBSOCKET_MESSAGE);
+            ESP_LOGI(TAG, "Sent message: %s", message);
         } else {
             ESP_LOGE(TAG, "Failed to send message");
         }
@@ -166,10 +177,18 @@ static void websocket_start(void)
 {
     const esp_websocket_client_config_t websocket_cfg = {
         .uri = CONFIG_MY_WEBSOCKET_URI,
+        .cert_pem = s_use_ssl ? AAA_Certificate_Services_pem_start : NULL,
         .network_timeout_ms = 10000,
         .reconnect_timeout_ms = 5000,
     };
     esp_websocket_client_handle_t client = esp_websocket_client_init(&websocket_cfg);
+
+    if (s_use_ssl) {
+        ESP_LOGI(TAG, "Detected WSS URI, enabling TLS with embedded certificate (%d bytes)",
+                 (int)(AAA_Certificate_Services_pem_end - AAA_Certificate_Services_pem_start));
+    } else {
+        ESP_LOGI(TAG, "Detected WS URI, starting without TLS certificate");
+    }
 
     if (client == NULL) {
         ESP_LOGE(TAG, "Failed to initialize WebSocket client");
@@ -189,6 +208,7 @@ void app_main(void)
     esp_err_t ret;
 
     ESP_LOGI(TAG, "Starting WebSocket demo");
+    s_use_ssl = uri_uses_wss(CONFIG_MY_WEBSOCKET_URI);
 
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
