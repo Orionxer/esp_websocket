@@ -1,0 +1,27 @@
+menu "My WebSocket Configuration"
+
+    config MY_WEBSOCKET_URI
+        string "WebSocket server URI"
+        default "ws://gogo.uno:1885"
+        help
+            WebSocket server endpoint used by this application.
+
+    config MY_WEBSOCKET_MESSAGE
+        string "WebSocket message"
+        default "hello from esp32c5"
+        help
+            Text message sent once after the WebSocket connection succeeds.
+
+    config MY_WEBSOCKET_WIFI_SSID
+        string "Wi-Fi SSID"
+        default "NRadio"
+        help
+            Wi-Fi network name for station mode.
+
+    config MY_WEBSOCKET_WIFI_PASSWORD
+        string "Wi-Fi password"
+        default "A12345678"
+        help
+            Wi-Fi password for station mode.
+
+endmenu
