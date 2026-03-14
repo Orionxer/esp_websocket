@@ -19,7 +19,7 @@
 
 安装wscat
 ```sh
-npm install -g wscat
+npm install -g wscat --strict-ssl=false
 ```
 连接ws服务器
 ```sh
@@ -44,6 +44,11 @@ source ~/.espressif/tools/activate_idf_v5.5.3.sh
 ```
 
 ## 3. 选择 ws 还是 wss
+
+设置目标芯片，例如esp32c5
+```bash
+idf.py set-target esp32c5
+```
 
 打开配置菜单：
 
@@ -103,10 +108,8 @@ idf.py build
 烧录并查看串口日志：
 
 ```bash
-idf.py -p /dev/ttyUSB0 flash monitor
+idf.py -b 3000000 build flash && idf.py monitor
 ```
-
-如果你的串口不是 `/dev/ttyUSB0`，请替换成实际端口。
 
 验证重点：
 
