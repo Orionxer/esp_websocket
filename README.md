@@ -16,29 +16,30 @@
 请先完成 ESP-IDF v5.5.3 的安装，并确认本机可使用对应工具链。
 
 > 使用`wscat`客户端订阅了`/#`之后能收到服务器的所有消息，包含客户端的连接与断开
+
+安装wscat
 ```sh
-# 安装wscat
 npm install -g wscat
 ```
+连接ws服务器
 ```sh
-# 连接ws服务器
 wscat -c ws://gogo.uno:1885
 ```
 连接成功后再输入`/#`订阅所有消息
 
 ## 2. 克隆项目，激活虚拟环境
 
+克隆项目
 ```bash
-# 克隆项目
 git clone https://github.com/Orionxer/esp_websocket
 ```
+进入项目
 ```sh
-# 进入项目
 cd my_websocket
 ```
 
+激活 ESP-IDF v5.5.3 环境：
 ```bash
-# 激活 ESP-IDF v5.5.3 环境：
 source ~/.espressif/tools/activate_idf_v5.5.3.sh
 ```
 
