@@ -9,23 +9,12 @@
 
 ## 1. 环境准备
 
+- 服务端预览: [ws.gogo.uno](https://ws.gogo.uno)
 - 开发板：`ESP32-C5`
 - ESP-IDF 版本：`v5.5.3`
 - 建议系统：Linux
 
 请先完成 ESP-IDF v5.5.3 的安装，并确认本机可使用对应工具链。
-
-> 使用`wscat`客户端订阅了`/#`之后能收到服务器的所有消息，包含客户端的连接与断开
-
-安装wscat
-```sh
-npm install -g wscat --strict-ssl=false
-```
-连接ws服务器
-```sh
-wscat -c ws://gogo.uno:1885
-```
-连接成功后再输入`/#`订阅所有消息
 
 ## 2. 克隆项目，激活虚拟环境
 

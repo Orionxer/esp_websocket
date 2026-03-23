@@ -1,0 +1,9 @@
+﻿# Name,   Type, SubType, Offset,   Size,      Flags
+nvs,      data, nvs,     0x9000,   0x6000,
+phy_init, data, phy,     0xf000,   0x1000,
+
+# Large single app partition for embedding starship_11mb.mp4 into firmware.
+factory,  app,  factory, 0x10000,  0xD00000,
+
+# Remaining flash space for data storage (SPIFFS).
+storage,  data, spiffs, ,          0x2F0000,
